@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<alarm-package>
+<app package="com.google.android.gsf"/>
+<app package="com.google.android.apps.maps"/>
+<app package="com.android.vending"/>
+<app package="com.android.phone"/>
+<app package="com.google.android.partnersetup"/>
+</alarm-package>

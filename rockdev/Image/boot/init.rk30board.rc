@@ -1,0 +1,349 @@
+##$_FOR_ROCKCHIP_RBOX_$
+
+import init.rk30board.usb.rc
+import init.${ro.hardware}.bootmode.${ro.bootmode}.rc
+import init.${ro.hardware}.environment.rc
+import init.connectivity.rc
+
+on early-init
+    export SECOND_VOLUME_STORAGE /mnt/external_sd
+    mkdir /mnt/external_sd 0000 system system
+# $_rbox_$_modify_$_huangyonglin: modified 2012-02-23, for adding the mass storage supporting.
+    export THIRD_VOLUME_STORAGE /mnt/usb_storage/USB_DISK0
+# $_rbox_$_modify_$ end
+    mkdir /mnt/usb_storage 0755 system system
+
+on post-fs
+    insmod /system/lib/modules/ump.ko
+    insmod /system/lib/modules/mali.ko
+    insmod /system/lib/modules/mali_kbase.ko
+    insmod /system/lib/modules/rk30_mirroring.ko
+    insmod /system/lib/modules/rk29-ipp.ko
+
+# AP6476 GPS permission
+    chmod 755 /system/bin/glgps
+    chown root system /system/bin/glgps
+    chmod 644 /system/lib/hw/gps.default.so
+    chown root system /system/lib/hw/gps.default.so
+    mkdir /data/gps
+    chmod 770 /data/gps
+    chown system net_bt_stack /data/gps
+
+on post-fs-data
+    # we will remap this as /mnt/sdcard with the sdcard fuse tool
+    mkdir /data/media 0770 media_rw media_rw
+    chown media_rw media_rw /data/media
+
+    setprop vold.post_fs_data_done 1
+    
+##$_rbox_$_modify_$_chenzhi_20120309
+##$_rbox_$_modify_$_begin
+    mkdir /data/misc/ppp 777 system system
+    chmod 777 /data/misc/ppp
+    copy /etc/ppp/pap-secrets /data/misc/ppp/pap-secrets
+    copy /etc/ppp/pppoe.conf /data/misc/ppp/pppoe.conf
+##$_rbox_$_modify_$_end
+
+on init
+# $_rbox_$_modify_$_huangyonglin: added 2012-02-23, for adding the mass storage supporting.
+# for adobe reader mobile
+    export RK_ADOBE_DE_MOBILE 1
+    export EBOOK_PAGE_VISIBLE_NUMBER 2　
+    export RK_ADEPT_DEVICE_TYPE mobile
+    export RK_ADOBE_DE_DOC_FOLDER "/mnt/sdcard/Digital Editions"
+    export RK_ADEPT_ACTIVATION_FILE /mnt/sdcard/.adobe-digital-editions/activation.xml
+    export RK_ADEPT_DEVICE_FILE /mnt/sdcard/.adobe-digital-editions/device.xml
+    export RK_ADEPT_DEVICE_SALT_FILE /mnt/sdcard/.adobe-digital-editions/devicesalt
+    export ADOBE_FONTS_DIR  /system/fonts/adobefonts/
+    export HOST_STORAGE_DIRECTORY_EXTERN_0 /mnt/usb_storage/USB_DISK0
+    export HOST_STORAGE_DIRECTORY_EXTERN_1 /mnt/usb_storage/USB_DISK1
+    export HOST_STORAGE_DIRECTORY_EXTERN_2 /mnt/usb_storage/USB_DISK2
+    export HOST_STORAGE_DIRECTORY_EXTERN_3 /mnt/usb_storage/USB_DISK3
+    export HOST_STORAGE_DIRECTORY_EXTERN_4 /mnt/usb_storage/USB_DISK4
+    export HOST_STORAGE_DIRECTORY_EXTERN_5 /mnt/usb_storage/USB_DISK5
+    
+
+    mkdir /mnt/internal_sd 0000 system system
+    mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /storage/emulated 0555 root root
+
+on boot
+    setprop UserVolumeLabel "RockChips"
+    mount debugfs /sys/kernel/debug /sys/kernel/debug mode=0755
+    chown system system /sys/devices/system/cpu/cpu1/online
+    chmod 0660 /sys/devices/system/cpu/cpu1/online
+#    insmod /system/lib/modules/vpu_service.ko
+    chown wifi wifi /sys/class/rkwifi/driver 
+    chown wifi wifi /sys/class/rkwifi/power
+
+#backlight
+    chown system system /sys/class/backlight/rk28_bl/brightness
+    
+#for hdmi timem out
+   chown root system /sys/class/graphics/fb0/map
+   chmod 0666 /sys/class/graphics/fb0/map
+   chown root system /sys/class/graphics/fb0/blank
+   chmod 0664 /sys/class/graphics/fb0/blank
+   chmod 0664 /dev/graphics/fb0
+
+   chown root system /sys/class/graphics/fb0/bcsh
+   chown root system /sys/class/graphics/fb0/dsp_lut
+   chown system root /sys/class/graphics/fb0/hwc_lut
+   chmod 0664 /sys/class/graphics/fb0/bcsh
+   chmod 0664 /sys/class/graphics/fb0/dsp_lut
+   chmod 0664 /sys/class/graphics/fb0/hwc_lut
+
+    chown system system /sys/mali400_utility/utility
+    chmod 0664 /sys/mali400_utility/utility
+
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+     
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+# $_rbox_$_modify_$_chenxiao_$_begin_$
+# for usb switch 
+    chown system system /sys/bus/platform/drivers/usb20_otg/force_usb_mode
+# $_rbox_$_modify_$_chenxiao_$_end_$
+
+#add by keily. BEGIN=================================================
+	chmod 4755 /system/xbin/su
+	chmod 777 /sys/class/gpio
+	chmod 777 /sys/class/gpio/export
+	
+#add by keily. END  =================================================
+
+# create virtual SD card at /mnt/sdcard, based on the /data/media directory
+# daemon will drop to user/group system/media_rw after initializing
+# underlying files in /data/media will be created with user and group media_rw (1023)
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+    class main
+    
+
+on property:ro.factory.hasUMS=false
+    symlink /storage/emulated/legacy /sdcard
+    symlink /storage/emulated/legacy /mnt/sdcard
+    symlink /storage/emulated/legacy /storage/sdcard0
+    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    mount rootfs rootfs / ro remount
+
+on property:ro.factory.hasUMS=cdrom
+    symlink /storage/emulated/legacy /sdcard
+    symlink /storage/emulated/legacy /mnt/sdcard
+    symlink /storage/emulated/legacy /storage/sdcard0
+    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    mount rootfs rootfs / ro remount
+
+on property:ro.factory.hasUMS=true
+    symlink /mnt/internal_sd /sdcard
+    symlink /mnt/internal_sd /mnt/sdcard
+    symlink /mnt/internal_sd /storage/sdcard0
+    mount rootfs rootfs / ro remount
+    stop sdcard
+
+
+# Binding fuse mount point to /storage/emulated/legacy
+#on property:init.svc.sdcard=running
+#    wait /mnt/shell/emulated/0
+#    mount none /mnt/shell/emulated/0 /storage/emulated/legacy bind
+
+
+service wfd /system/bin/wfd
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_wlan0 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_wlan0 system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_p2p /system/bin/dhcpcd -aABKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_p2p system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+# bugreport is triggered by holding down volume down, volume up and power
+service bugreport /system/bin/bugreport.sh
+    class main
+    disabled
+    oneshot
+    keycodes 114 115 116
+
+service chrome /system/bin/chrome.sh
+    class main
+    oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+    class main
+	disabled
+	oneshot
+			
+service iprenew_eth0 system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_bt-pan /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+on property:ro.boot.charger.emmc=1
+    mount ext4 /dev/block/platform/emmc/by-name/system /system wait ro noatime nodiratime
+    start console
+    mount ext4 /dev/block/platform/emmc/by-name/metadata /metadata wait noatime nodiratime nosuid nodev noauto_da_alloc,discard
+    start charger
+
+on property:ro.boot.charger.emmc=0
+    insmod /rk30xxnand_ko.ko
+    mount ext4 mtd@system /system wait ro noatime nodiratime noauto_da_alloc
+    start console
+    mount ext4 mtd@metadata /metadata wait noatime nodiratime nosuid nodev noauto_da_alloc
+    start charger
+
+on charger
+    setprop ro.boot.charger.emmc 0
+    export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
+    export LD_LIBRARY_PATH /vendor/lib:/system/lib
+    setprop sys.usb.config adb
+
+service charger /charger
+    disabled
+
+service akmd /system/bin/akmd
+        class main
+        user system
+        group system
+        oneshot
+
+on property:sys.gmali.performance=ui
+    start pat_ui
+
+service pat_ui /system/bin/performance ui
+    disabled
+    oneshot
+        
+##$_rbox_$_modify_$_chenzhi_20120309
+##$_rbox_$_modify_$_begin
+service pppoe_setup /system/bin/pppoe-setup
+    disabled
+    oneshot
+
+service pppoe_start /system/bin/pppoe-start
+    disabled
+    oneshot
+    
+service bplus_helper  /system/bin/bplus_helper
+    class main
+    oneshot
+
+service pppoe_stop /system/bin/pppoe-stop
+    disabled
+    oneshot
+##$_rbox_$_modify_$_end
+
+on property:sys.gmali.performance=video
+    start pat_video
+
+#factory
+on property:ro.factory.tool=1     
+    write /sys/class/gsensor_class/orientation gsensor={-1,0,0,0,0,1,0,-1,0}
+    write /sys/devices/platform/rk29-keypad/rk29key {menu:MENU,home:HOME,vol+:VOLUP,vol-:VOLDOWN,play:PLAY,esc:ESC,sensor:CAMERA}
+    write /sys/devices/platform/rk29_backlight/rk29backlight 100
+
+service pat_video /system/bin/performance video
+    disabled
+    oneshot
+
+on property:ro.rk.btchip=broadcom.bplus
+    start gpsd
+
+
+
+service gpsd  /system/bin/glgps -c /system/etc/gps/gpsconfig.xml
+    class main
+    disabled
+    user root
+    group system
+
+##$_rbox_$_modify_$_chenxiao
+##$_rbox_$_modify_$_begin
+service cifsmanager /data/etc/cifsmanager.sh
+    disabled
+    oneshot
+##$_rbox_$_modify_$_end
+
+service iso_operate /data/bluray.sh
+    disabled
+    oneshot
+
+#$_rbox_$_modify_$_by cx,add for samba server
+service startsamba /system/bin/rksmbd
+    disabled
+    oneshot
+
+on property:sys.rksmbd.start=1
+    start startsamba
+    
+service stopsamba /system/bin/stopsamba.sh
+    disabled
+    oneshot
+    
+on property:sys.rksmbd.start=0
+    start stopsamba
+#$_rbox_$_modify_$_end
+#$_rbox_$_modify_$_by blb ,add for wifidisplay
+service wfd /system/bin/wfd
+    class main
+    disabled
+Oneshot
+#$_rbox_$_modify_$_end
+
+#add by keily.BEGIN================================20151207========================================
+#for buletooth control
+service keilybtc /system/bin/busybox sh /system/bin/keilyBuletooth_rk3128.sh
+    user root
+    group root
+    disabled
+    oneshot
+
+on property:sys.lycoo.buletooth.trigger=1
+    start keilybtc
+#add by keily.END ================================20151207========================================
+
+#add by michaellancy.BEGIN================================20150228========================================
+#replace bootanimation
+service replacebam /system/bin/sh /system/bin/replace_bam_rk3128.sh
+	user root
+	group root
+	disabled
+    oneshot
+
+on property:sys.lycoo.replace.bam.trigger=1
+    start replacebam
+
+#reset bootanimation
+service resetbam /system/bin/sh /system/bin/reset_bam_rk3128.sh
+	user root
+	group root
+	disabled
+    oneshot
+
+on property:sys.lycoo.reset.bam.trigger=1
+    start resetbam
+#add by michaellancy.END ================================20150228========================================

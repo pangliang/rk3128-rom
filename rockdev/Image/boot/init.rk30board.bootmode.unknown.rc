@@ -1,0 +1,17 @@
+on fs
+    insmod /rk30xxnand_ko.ko
+# mount mtd partitions
+	mount ext4 mtd@system /system wait ro noatime nodiratime noauto_da_alloc discard
+    start readahead
+	mount ext4 mtd@userdata /data wait noatime nodiratime nosuid nodev noauto_da_alloc discard
+    mount ext4 mtd@cache /cache wait noatime nodiratime nosuid nodev noauto_da_alloc discard
+    mount_all fstab.rk30board
+    swapon_all fstab.rk30board
+
+on init
+# Enable KSM kernel samepage merging
+    write /sys/kernel/mm/ksm/pages_to_scan 100
+    write /sys/kernel/mm/ksm/sleep_millisecs 500
+    write /sys/kernel/mm/ksm/run 1
+
+    write /proc/sys/vm/page-cluster 0

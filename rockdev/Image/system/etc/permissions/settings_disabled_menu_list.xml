@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--$_FOR_ROCKCHIP_RBOX_$-->
+<!-- 
+    put the menu items which we don't use in settings page here, 
+    then it will not be displayed.
+    add by ljh
+-->
+<permissions>
+<!--WIRELESS and NETWORKS-->
+<!--        <feature name="android.settings.wifi" />-->
+<!--        <feature name="android.settings.bluetooth" />-->
+<!--        <feature name="android.settings.ethernet" />-->
+<!--        <feature name="android.settings.data_usage" />-->
+<!--        <feature name="android.settings.operator" />-->
+<!--        <feature name="android.settings.wireless" />-->
+<!--DEVICE-->
+<!--	    <feature name="android.settings.usb" />-->
+<!--        <feature name="android.settings.sound" />-->
+<!--        <feature name="android.settings.display" />-->
+<!--        <feature name="android.settings.screen" />-->
+<!--        <feature name="android.settings.storage" />-->
+        <feature name="com.android.settings.battery" />
+<!--        <feature name="android.settings.application" />-->
+<!--        <feature name="android.settings.user" />-->
+<!--        <feature name="android.settings.manufacturer" />-->
+<!--PERSONAL-->
+<!--        <feature name="android.settings.location" />-->
+<!--        <feature name="android.settings.security" />-->
+<!--        <feature name="android.settings.language" />-->
+<!--        <feature name="android.settings.privacy" />-->
+<!--ACCOUNTS-->
+<!--        <feature name="android.settings.account" />-->
+<!--        <feature name="android.settings.account_add" />-->
+<!--SYSTEM-->
+<!--        <feature name="android.settings.system" />-->
+<!--        <feature name="android.settings.date_time" />-->
+<!--        <feature name="android.settings.accessibility" />-->
+<!--        <feature name="android.settings.development" />-->
+<!--        <feature name="android.settings.about" />-->
+
+
+<!--
+      android.settings.sdcard和android.settings.sata is define by hh to contorl sdcard and sata in Setting's UI
+-->
+<!--
+			<feature name="android.settings.sdcard" />
+			<feature name="android.settings.sata" />
+-->
+</permissions>

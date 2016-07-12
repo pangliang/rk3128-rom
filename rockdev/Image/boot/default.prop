@@ -1,0 +1,22 @@
+#
+# ADDITIONAL_DEFAULT_PROPERTIES
+#
+rild.libpath1=/system/lib/libreference-ril-mt6229.so
+rild.libpath2=/system/lib/libreference-ril-mu509.so
+rild.libpath4=/system/lib/libreference-ril-mw100.so
+rild.libpath6=/system/lib/libreference-ril-sc6610.so
+rild.libpath7=/system/lib/libreference-ril-m51.so
+rild.libpath8=/system/lib/libreference-ril-mt6250.so
+rild.libpath9=/system/lib/libreference-ril-c66a.so
+rild.libpath10=/system/lib/libreference-ril-sew290.so
+rild.libpath11=/system/lib/libreference-ril-u5501.so
+rild.libpath12=/system/lib/libreference-ril-u7501.so
+rild.libpath14=/system/lib/libreference-ril-a85xx.so
+rild.libpath15=/system/lib/libreference-ril-e1230s.so
+rild1.libpath=/system/lib/libreference-ril-sc6610-1.so
+rild3.libpath=/system/lib/libril-rk29-dataonly.so
+rild.libpath13=/system/lib/libreference-ril-aw706.so
+ro.secure=0
+ro.allow.mock.location=1
+ro.debuggable=1
+persist.sys.usb.config=adb
